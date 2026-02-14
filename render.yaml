@@ -2,7 +2,7 @@ services:
   # Backend Service
   - type: web
     name: order-fulfillment-backend
-    env: node
+    runtime: node
     region: oregon
     plan: free
     buildCommand: cd backend && npm install && npx prisma generate && npm run build
@@ -16,13 +16,13 @@ services:
         generateValue: true
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 10000
     
   # Frontend Service
   - type: web
     name: order-fulfillment-frontend
-    env: static
-    region: oregon
-    plan: free
+    runtime: static
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist
     routes:
@@ -35,4 +35,3 @@ databases:
     region: oregon
     plan: free
     databaseName: order_fulfillment
-    user: postgres
