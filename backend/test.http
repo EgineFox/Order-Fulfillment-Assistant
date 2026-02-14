@@ -1,0 +1,65 @@
+### Test Check
+GET http://localhost:3000/test
+
+### Register
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123",
+  "name": "Test User"
+}
+
+### Login
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Get Current User 
+GET http://localhost:3000/api/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsImlhdCI6MTc2OTQ2MjIzNSwiZXhwIjoxNzcwMDY3MDM1fQ.cBIfeWx5m0vyxZQPZrS0ZD4ZFbAUVUO1XRLDKbCJ9ig
+```
+### Test Register
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@test.com",
+  "password": "123"
+}
+
+### Register
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "ekaterina.new@example.com",
+  "password": "mypassword123",
+  "name": "Ekaterina"
+}
+
+### Login
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "ekaterina@example.com",
+  "password": "mypassword123"
+}
+
+### Get Me
+GET http://localhost:3000/api/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImVtYWlsIjoiZWthdGVyaW5hQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY5NjE3MDY2LCJleHAiOjE3NzAyMjE4NjZ9.NjHOdawntjRsSZkBET89Fp1QC6UgB0PTUnlAmES7AyM
+
+### Get Stores
+GET http://localhost:3000/api/stores
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImVtYWlsIjoiZWthdGVyaW5hQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY5NjE3MDY2LCJleHAiOjE3NzAyMjE4NjZ9.NjHOdawntjRsSZkBET89Fp1QC6UgB0PTUnlAmES7AyM
+
+### Get Stores
+GET http://localhost:3000/api/stores
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImVtYWlsIjoiZWthdGVyaW5hQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY5NjE3MDY2LCJleHAiOjE3NzAyMjE4NjZ9.NjHOdawntjRsSZkBET89Fp1QC6UgB0PTUnlAmES7AyM
