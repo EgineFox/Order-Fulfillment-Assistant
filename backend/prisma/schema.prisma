@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") 
+}
+
+
+// ===============
+// Users (auth)
+//================
+model User {
+  id Int @id @default(autoincrement())
+  email String @unique
+  passwordHash String @map("password_hash")
+  name String?
+  role String @default("manager")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  fileUploads FileUpload[]
+
+  @@map("users")
+}
+
+// ===============
+// Stores (warehouses)
+//================
+model Store {
+  id              Int      @id
+  name            String
+  address         String?
+  city            String?
+  managerName     String?  @map("manager_name")
+  managerPhone    String?  @map("manager_phone")
+  isMainWarehouse Boolean  @default(false) @map("is_main_warehouse")
+  createdAt       DateTime @default(now()) @map("created_at")
+  
+  @@map("stores")
+}
+
+// ===============
+// FileUploads
+//================
+model FileUpload {
+  id          Int         @id @default(autoincrement())
+  userId      Int         @map("user_id")
+  filename    String
+  uploadedAt  DateTime    @default(now()) @map("uploaded_at")
+  processedAt DateTime?   @map("processed_at")
+  status      String      @default("pending")
+  totalRows   Int?        @map("total_rows")
+  
+  user        User        @relation(fields: [userId], references: [id])
+  orderItems  OrderItem[]
+  
+  @@map("file_uploads")
+}
+
+// ===============
+// OrderItems 
+// ===============
+model OrderItem {
+  id                Int        @id @default(autoincrement())
+  fileUploadId      Int        @map("file_upload_id")
+  
+  externalId        String     @map("external_id")
+  orderName         String     @map("order_name")
+  shippingAddress   String     @map("shipping_address")
+  shippingPhone     String     @map("shipping_phone")
+  shippingCity      String?    @map("shipping_city")
+  customerName      String?    @map("customer_name")
+  orderDate         DateTime   @map("order_date")
+  
+  sku               String
+  barcode           String?
+  productName       String     @map("product_name")
+  quantity          Int        @default(1)
+  
+  inventoryRaw      String?    @map("inventory_raw")
+  locationCode      String?    @map("location_code")
+  
+  fulfillmentStatus String?    @map("fulfillment_status")
+  allocatedQuantity Int        @default(0) @map("allocated_quantity")
+  
+  createdAt         DateTime   @default(now()) @map("created_at")
+  
+  fileUpload        FileUpload @relation(fields: [fileUploadId], references: [id], onDelete: Cascade)
+  
+  @@index([sku])
+  @@index([externalId])
+  @@map("order_items")
+}
+
+model DeliveryRoute {
+  id        Int      @id @default(autoincrement())
+  dayOfWeek Int      // 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday
+  stores    String   // Comma-separated store IDs: "5,10,15,20"
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("delivery_routes")
+}
