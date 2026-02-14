@@ -13,6 +13,7 @@ export interface DistributionResults {
     status: 'main_warehouse';
     warehouse: number;
     locationCode?: string;
+    availableStores?: number[];
   }[];
   storeRequests: {
     storeId: number;
@@ -82,7 +83,8 @@ const generateMessage = (request: DistributionResults['storeRequests'][0]): stri
 
 export const distributeOrders = async (
   orders: OrderRow[],
-  deliveryDate?: Date
+  deliveryDate?: Date,
+  excludedStores: number[] = []
 ): Promise<DistributionResults> => {
   console.log('Starting distribution algorithm...');
   console.log(`Total items: ${orders.length}`);
@@ -189,6 +191,7 @@ export const distributeOrders = async (
           status: 'main_warehouse',
           warehouse: mainStores[0],
           locationCode: item.locationCode,
+          availableStores: item.availableStores,
         });
 
         console.log(`${item.sku} → Main warehouse ${mainStores[0]}`);
@@ -197,8 +200,12 @@ export const distributeOrders = async (
 
       // Not in main warehouse - distribute to stores
       const otherStores = item.availableStores.filter(s =>
-        !MAIN_WAREHOUSES.includes(s)
+        !MAIN_WAREHOUSES.includes(s) && !excludedStores.includes(s)
       );
+
+      if (excludedStores.length > 0) {
+        console.log(`  → Excluding stores: [${excludedStores.join(', ')}]`);
+      }
 
       let remainingQty = item.quantity;
       const allocations: StoreAllocation[] = [];

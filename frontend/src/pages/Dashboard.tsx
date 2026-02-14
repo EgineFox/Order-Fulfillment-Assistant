@@ -18,6 +18,7 @@ export default function Dashboard() {
 
   const [routes, setRoutes] = useState<DeliveryRoute[]>([]);
   const [stores, setStores] = useState<Store[]>([]);
+  const [excludedStores, setExcludedStores] = useState<number[]>([]);
   const [loadingRoutes, setLoadingRoutes] = useState(true);
 
   // Load delivery routes and stores
@@ -96,7 +97,7 @@ export default function Dashboard() {
     setError('');
 
     try {
-      const response = await filesAPI.process(uploadedFileId);
+      const response = await filesAPI.process(uploadedFileId, excludedStores);
       console.log('File processed:', response);
 
       // Navigate to results page with data
@@ -267,6 +268,97 @@ export default function Dashboard() {
           File uploaded successfully! Click "Process File" to analyze the data.
         </div>
       )}
+
+      {/* Store Exclusion Settings */}
+      <div style={{
+        marginTop: '30px',
+        padding: '20px',
+        backgroundColor: '#fff3cd',
+        borderRadius: '8px',
+        border: '1px solid #ffc107',
+      }}>
+        <h3>⚙️ Distribution Settings</h3>
+        <p style={{ fontSize: '14px', color: '#856404', marginBottom: '15px' }}>
+          Select stores to <strong>EXCLUDE</strong> from distribution (they will not receive orders):
+        </p>
+
+        {loadingRoutes ? (
+          <p>Loading stores...</p>
+        ) : (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+            gap: '10px',
+          }}>
+            {stores
+              .filter(s => ![1, 69, 70, 79].includes(s.id))
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map(store => (
+                <label
+                  key={store.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '10px',
+                    backgroundColor: excludedStores.includes(store.id) ? '#f8d7da' : 'white',
+                    border: '1px solid #dee2e6',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s',
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={excludedStores.includes(store.id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setExcludedStores([...excludedStores, store.id]);
+                      } else {
+                        setExcludedStores(excludedStores.filter(id => id !== store.id));
+                      }
+                    }}
+                    style={{ marginRight: '8px' }}
+                  />
+                  <span style={{
+                    fontSize: '14px',
+                    textDecoration: excludedStores.includes(store.id) ? 'line-through' : 'none',
+                    color: excludedStores.includes(store.id) ? '#721c24' : 'inherit',
+                  }}>
+                    {store.name} ({store.id})
+                  </span>
+                </label>
+              ))}
+          </div>
+        )}
+
+        {excludedStores.length > 0 && (
+          <div style={{
+            marginTop: '15px',
+            padding: '10px',
+            backgroundColor: '#f8d7da',
+            border: '1px solid #f5c6cb',
+            borderRadius: '4px',
+          }}>
+            <strong>⚠️ Excluded: {excludedStores.length} store(s)</strong>
+            <br />
+            <button
+              onClick={() => setExcludedStores([])}
+              style={{
+                marginTop: '8px',
+                padding: '5px 10px',
+                backgroundColor: '#dc3545',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '12px',
+              }}
+            >
+              Clear All Exclusions
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Delivery Routes Calendar */}
       <div style={{

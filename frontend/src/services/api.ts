@@ -52,8 +52,10 @@ export const filesAPI = {
         });
         return response.data;
     },
-    process: async (fileId: number): Promise<ProcessFileResponse> => {
-        const response = await api.post<ProcessFileResponse>(`/files/${fileId}/process`);
+    process: async (fileId: number, excludedStores: number[] = []): Promise<ProcessFileResponse> => {
+        const response = await api.post<ProcessFileResponse>(`/files/${fileId}/process`, {
+            excludedStores,
+        });
         return response.data;
     },
 

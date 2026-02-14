@@ -7,36 +7,46 @@ import { storesAPI } from "../services/api";
 
 export default function Results() {
 
-    //Add styles for printing
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState<'main' | 'stores' | 'insufficient' | 'report'>('main');
+    const [stores, setStores] = useState<Store[]>([]);
+
+    // Load stores
+    useEffect(() => {
+        const loadStores = async () => {
+            try {
+                const response = await storesAPI.getAll();
+                setStores(response.stores);
+            } catch (err) {
+                console.error('Failed to load stores:', err);
+            }
+        };
+        loadStores();
+    }, []);
+
+    // Print styles - dynamic based on active tab
     useEffect(() => {
         const style = document.createElement('style');
-        style.textContent = `
-    @media print {
-  /* Hide everything */
-  body * {
-    visibility: hidden;
-  }
-  
-  /* Show only print summary */
-  #print-only-summary,
-  #print-only-summary * {
-    visibility: visible !important;
-    display: block !important;
-  }
-  
-  #print-only-summary {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-  }
-  
-  /* Hide screen version */
-  #manager-report {
-    display: none !important;
-  }
 
-      
+        const commonPrintStyles = `
+      @page {
+        size: A4;
+        margin: 10mm;
+      }
+      body * {
+        visibility: hidden;
+      }
+      .no-print {
+        display: none !important;
+      }
+    `;
+
+        const mainWarehousePrintStyles = `
+      #main-warehouse-table,
+      #main-warehouse-table * {
+        visibility: visible !important;
+      }
       #main-warehouse-table {
         position: absolute;
         left: 0;
@@ -44,177 +54,79 @@ export default function Results() {
         width: 100%;
         font-size: 16px;
       }
-      
       #main-warehouse-table th {
-        font-size: 18px !important;
-        padding: 15px !important;
+        font-size: 14px !important;
+        padding: 10px !important;
         background-color: #f0f0f0 !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
-      
       #main-warehouse-table td {
-        font-size: 16px !important;
-        padding: 15px !important;
+        font-size: 12px !important;
+        padding: 10px !important;
       }
-      
-      /* Highlight location and quantity */
       #main-warehouse-table td:nth-child(3),
       #main-warehouse-table td:nth-child(4) {
-        font-size: 24px !important;
+        font-size: 20px !important;
         font-weight: bold !important;
       }
-      
-      /* Yellow background for location */
       #main-warehouse-table td:nth-child(3) {
         background-color: #fff3cd !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
-        /* Manager Report Print */
-     /* Show only manager report */
-      #manager-report,
-      #manager-report * {
-        visibility: visible;
+      #main-warehouse-table td:nth-child(6) {
+        font-size: 15px !important;
       }
-      
-      #manager-report {
+      #print-only-summary { display: none !important; }
+      #manager-report { display: none !important; }
+    `;
+
+        const reportPrintStyles = `
+      #print-only-summary,
+      #print-only-summary * {
+        visibility: visible !important;
+        display: block !important;
+      }
+      #print-only-summary {
         position: absolute;
         left: 0;
         top: 0;
         width: 100%;
-        padding: 20px;
       }
-      
-      /* Compact header */
-      #manager-report h1 {
-        font-size: 18px !important;
-        margin-bottom: 5px !important;
+      #print-only-summary table,
+      #print-only-summary table * {
+        display: revert !important;
       }
-      
-      #manager-report > div:first-child {
-        margin-bottom: 15px !important;
-        padding-bottom: 10px !important;
+      #manager-report { display: none !important; }
+      #main-warehouse-table { display: none !important; }
+
+      #print-only-summary table,
+      #print-only-summary th,
+      #print-only-summary td {
+        border: 1px solid #000 !important;
       }
-      
-      #manager-report > div:first-child p {
-        font-size: 11px !important;
-        margin: 5px 0 0 0 !important;
-      }
-      
-      /* Compact statistics cards */
-      #manager-report > div:nth-child(2) {
-        margin-bottom: 15px !important;
-        gap: 10px !important;
-      }
-      
-      #manager-report > div:nth-child(2) > div {
-        padding: 10px !important;
-      }
-      
-      #manager-report > div:nth-child(2) h3 {
-        font-size: 11px !important;
-        margin: 0 0 5px 0 !important;
-      }
-      
-      #manager-report > div:nth-child(2) p {
-        font-size: 20px !important;
-        margin: 0 !important;
-      }
-      
-      #manager-report > div:nth-child(2) p:last-child {
-        font-size: 10px !important;
-      }
-      
-      /* Compact sections */
-      #manager-report > div > h2 {
-        font-size: 14px !important;
-        margin-bottom: 8px !important;
-        padding-bottom: 5px !important;
-      }
-      
-      /* Compact tables */
-      #manager-report table {
-        font-size: 10px !important;
-        margin-bottom: 10px !important;
-      }
-      
-      #manager-report th {
-        padding: 5px !important;
-        font-size: 9px !important;
-      }
-      
-      #manager-report td {
-        padding: 4px 5px !important;
-        font-size: 10px !important;
-      }
-      
-      /* Store requests - more compact */
-      #manager-report > div:nth-child(4) > div {
-        margin-bottom: 10px !important;
-        padding: 8px !important;
-      }
-      
-      #manager-report > div:nth-child(4) h3 {
-        font-size: 11px !important;
-        margin: 0 0 5px 0 !important;
-      }
-      
-      /* Remove colors for printing */
-      * {
-        background: white !important;
+      #print-only-summary thead tr {
+        background-color: #f0f0f0 !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
-      
-      /* Keep borders */
-      #manager-report table,
-      #manager-report th,
-      #manager-report td {
-        border: 1px solid #000 !important;
-      }
-      
-      /* Keep important backgrounds */
-      #manager-report thead tr {
-        background-color: #f0f0f0 !important;
-      }
-      
-      /* Page breaks */
-      #manager-report > div {
-        page-break-inside: avoid;
-      }
-      
-      /* Fit to one page if possible */
-      @page {
-        size: A4;
-        margin: 10mm;
-      }
-    }
-}
-  `;
+    `;
+
+        let tabStyles = '';
+        if (activeTab === 'main') {
+            tabStyles = mainWarehousePrintStyles;
+        } else if (activeTab === 'report') {
+            tabStyles = reportPrintStyles;
+        }
+
+        style.textContent = `@media print { ${commonPrintStyles} ${tabStyles} }`;
         document.head.appendChild(style);
 
         return () => {
             document.head.removeChild(style);
         };
-    }, []);
-
-    const location = useLocation();
-    const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState<'main' | 'stores' | 'insufficient' | 'report'>('main');
-    const [stores, setStores] = useState<Store[]>([]);
-    useEffect(() => {
-  const loadStores = async () => {
-    try {
-      const response = await storesAPI.getAll();
-      setStores(response.stores);
-    } catch (err) {
-      console.error('Failed to load stores:', err);
-    }
-  };
-  
-  loadStores();
-}, []);
+    }, [activeTab]);
 
     // Get results from navigation state
     const results = location.state?.results as ProcessFileResponse | undefined;
@@ -242,6 +154,7 @@ export default function Results() {
         status: 'main_warehouse';
         warehouse?: number;
         locationCode?: string;
+        availableStores?: number[];
         orderIds: string[];
     }>) : {};
 
@@ -470,10 +383,18 @@ export default function Results() {
                                     <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'center', fontSize: '16px', fontWeight: 'bold' }}>LOCATION</th>
                                     <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'center', fontSize: '16px', fontWeight: 'bold' }}>QUANTITY</th>
                                     <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'center' }}>Warehouse</th>
+                                    <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Also Available In</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {groupedMainWarehouseArray.map((item, idx) => (
+                                {groupedMainWarehouseArray.map((item, idx) => {
+                                    const availableStores = item.availableStores || [];
+                                    const otherStores = availableStores.filter(s => ![1, 69, 70, 79].includes(s));
+                                    const storeNames = otherStores.length > 0
+                                        ? otherStores.join(', ')
+                                        : 'None';
+
+                                    return (
                                     <tr key={idx}>
                                         <td style={{ padding: '12px', border: '1px solid #dee2e6', fontFamily: 'monospace' }}>{item.sku}</td>
                                         <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>{item.productName}</td>
@@ -503,8 +424,17 @@ export default function Results() {
                                             {item.warehouse === 79 && '79'}
                                             {!item.warehouse && '-'}
                                         </td>
+                                        <td style={{
+                                            padding: '12px',
+                                            border: '1px solid #dee2e6',
+                                            fontSize: '12px',
+                                            color: otherStores.length > 0 ? '#28a745' : '#6c757d',
+                                        }}>
+                                            {storeNames}
+                                        </td>
                                     </tr>
-                                ))}
+                                    );
+                                })}
                             </tbody>
                         </table>
                     )}
@@ -767,10 +697,7 @@ export default function Results() {
               : [];
             
             const altStoreNames = otherStores.length > 0
-              ? otherStores.slice(0, 2).map(storeId => {
-                  const storeData = stores.find(s => s.id === storeId);
-                  return storeData?.name || `Store ${storeId}`;
-                }).join(', ') + (otherStores.length > 2 ? ` +${otherStores.length - 2}` : '')
+              ? otherStores.slice(0, 3).join(', ') + (otherStores.length > 3 ? ` +${otherStores.length - 3}` : '')
               : 'None';
             
             return (
@@ -814,12 +741,6 @@ export default function Results() {
           // Filter out main warehouses
           const otherStores = availableStores.filter(s => ![1, 69, 70, 79].includes(s));
           
-          // Get store names
-          const storeNames = otherStores.map(storeId => {
-            const storeData = stores.find(s => s.id === storeId);
-            return storeData ? storeData.name : `Store ${storeId}`;
-          }).join(', ');
-          
           return (
             <tr key={idx} style={{ backgroundColor: idx % 2 === 0 ? 'white' : '#fff9f9' }}>
               <td style={{ padding: '6px', border: '1px solid #000', fontFamily: 'monospace' }}>{item.sku}</td>
@@ -829,31 +750,11 @@ export default function Results() {
                 {item.totalMissing}
               </td>
               <td style={{ padding: '6px', border: '1px solid #000', fontSize: '9px' }}>
-                {otherStores.length > 0 ? storeNames : '❌ Nowhere (Out of stock)'}
+                {otherStores.length === 0
+                  ? <span style={{ color: '#dc3545', fontWeight: 'bold' }}>❌ Out of stock</span>
+                  : <span>{otherStores.slice(0, 5).join(', ')}{otherStores.length > 5 && ` +${otherStores.length - 5}`}</span>
+                }
               </td>
-              <td style={{ padding: '6px', border: '1px solid #000', fontSize: '9px' }}>
-  {(() => {
-    const insufficientItem = results.results.insufficient.find(i => i.sku === item.sku);
-    const availableStores = insufficientItem?.availableStores || [];
-    const otherStores = availableStores.filter(s => ![1, 69, 70, 79].includes(s));
-    
-    if (otherStores.length === 0) {
-      return <span style={{ color: '#dc3545', fontWeight: 'bold' }}>❌ Out of stock</span>;
-    }
-    
-    const storeNames = otherStores.slice(0, 3).map(storeId => {
-      const storeData = stores.find(s => s.id === storeId);
-      return storeData?.name || `Store ${storeId}`;
-    }).join(', ');
-    
-    return (
-      <span>
-        {storeNames}
-        {otherStores.length > 3 && ` +${otherStores.length - 3} more`}
-      </span>
-    );
-  })()}
-</td>
             </tr>
           );
         })}

@@ -59,7 +59,8 @@ export const uploadFile = async (req: Request, res: Response): Promise<void> => 
 // Process file
 export const processFile = async (req: Request, res: Response): Promise<void> => {
     try {
-        const fileId = parseInt(req.params.id as string);
+        const fileId = parseInt(req.params.id as string, 10);
+        const { excludedStores } = req.body;
         const userId = req.user?.userId;
 
         if (!userId) {
@@ -68,6 +69,9 @@ export const processFile = async (req: Request, res: Response): Promise<void> =>
         }
 
         console.log('Processing file:', fileId);
+        if (excludedStores && excludedStores.length > 0) {
+          console.log('Excluded stores:', excludedStores);
+        }
 
         // Get info about file
         const fileUpload = await prisma.fileUpload.findUnique({
@@ -147,7 +151,7 @@ export const processFile = async (req: Request, res: Response): Promise<void> =>
 // Run the distribution algorithm
 // For now, use current date
 const deliveryDate = new Date();
-const results = await distributeOrders(validOrders, deliveryDate);
+const results = await distributeOrders(validOrders, deliveryDate, excludedStores);
 
       console.log('Distribution completed');
 // Return results + parsing errors
