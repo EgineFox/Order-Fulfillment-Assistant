@@ -136,7 +136,7 @@ export const processFile = async (req: Request, res: Response): Promise<void> =>
             }))
         });
 
-        // Обновляем статус файла
+        // Update file status
         await prisma.fileUpload.update({
             where: { id: fileId },
             data: {
