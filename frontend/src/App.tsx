@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Results from "./pages/Results";
+import Footer from './components/Footer';
 
 // Protected Route component
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -24,28 +25,30 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function AppRoutes() {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-              <Dashboard />
-          </ProtectedRoute>
-        }
+    <>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+                <Dashboard />
+            </ProtectedRoute>
+          }
         />
-        < Route 
-            path="/results"
-            element={
-              <ProtectedRoute>
-                <Results />
-              </ProtectedRoute>
-            }
-            />
-      <Route path="/" element={<Navigate to='/dashboard' replace />} />
-
-    </Routes>
+        <Route
+          path="/results"
+          element={
+            <ProtectedRoute>
+              <Results />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/" element={<Navigate to='/dashboard' replace />} />
+      </Routes>
+      <Footer />
+    </>
   );
 }
 

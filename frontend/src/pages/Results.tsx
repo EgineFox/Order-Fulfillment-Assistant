@@ -40,6 +40,10 @@ export default function Results() {
       .no-print {
         display: none !important;
       }
+        @media print {
+  footer {
+    display: none !important;
+  }
     `;
 
         const mainWarehousePrintStyles = `
@@ -296,10 +300,10 @@ export default function Results() {
                     onClick={() => setActiveTab('main')}
                     style={{
                         padding: '10px 20px',
-                        backgroundColor: activeTab === 'main' ? '#007bff' : 'transparent',
+                        backgroundColor: activeTab === 'main' ? '#471494' : 'transparent',
                         color: activeTab === 'main' ? 'white' : '#495057',
                         border: 'none',
-                        borderBottom: activeTab === 'main' ? '3px solid #007bff' : 'none',
+                        borderBottom: activeTab === 'main' ? '3px solid #471494' : 'none',
                         cursor: 'pointer',
                         marginRight: '10px',
                     }}>
@@ -309,10 +313,10 @@ export default function Results() {
                     onClick={() => setActiveTab('stores')}
                     style={{
                         padding: '10px 20px',
-                        backgroundColor: activeTab === 'stores' ? '#007bff' : 'transparent',
+                        backgroundColor: activeTab === 'stores' ? '#471494' : 'transparent',
                         color: activeTab === 'stores' ? 'white' : '#495057',
                         border: 'none',
-                        borderBottom: activeTab === 'stores' ? '3px solid #007bff' : 'none',
+                        borderBottom: activeTab === 'stores' ? '3px solid #471494' : 'none',
                         cursor: 'pointer',
                         marginRight: '10px',
                     }} >
@@ -322,10 +326,10 @@ export default function Results() {
                     onClick={() => setActiveTab('insufficient')}
                     style={{
                         padding: '10px 20px',
-                        backgroundColor: activeTab === 'insufficient' ? '#007bff' : 'transparent',
+                        backgroundColor: activeTab === 'insufficient' ? '#471494' : 'transparent',
                         color: activeTab === 'insufficient' ? 'white' : '#495057',
                         border: 'none',
-                        borderBottom: activeTab === 'insufficient' ? '3px solid #007bff' : 'none',
+                        borderBottom: activeTab === 'insufficient' ? '3px solid #471494' : 'none',
                         cursor: 'pointer',
                     }}
                 >
@@ -335,10 +339,10 @@ export default function Results() {
                     onClick={() => setActiveTab('report')}
                     style={{
                         padding: '10px 20px',
-                        backgroundColor: activeTab === 'report' ? '#007bff' : 'transparent',
+                        backgroundColor: activeTab === 'report' ? '#471494' : 'transparent',
                         color: activeTab === 'report' ? 'white' : '#495057',
                         border: 'none',
-                        borderBottom: activeTab === 'report' ? '3px solid #007bff' : 'none',
+                        borderBottom: activeTab === 'report' ? '3px solid #471494' : 'none',
                         cursor: 'pointer',
                         marginRight: '10px',
                     }}
@@ -782,7 +786,7 @@ export default function Results() {
                             className="no-print"
                             style={{
                                 padding: '10px 20px',
-                                backgroundColor: '#007bff',
+                                backgroundColor: '#28a745',
                                 color: 'white',
                                 border: 'none',
                                 borderRadius: '4px',

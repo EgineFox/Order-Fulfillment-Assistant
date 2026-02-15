@@ -34,8 +34,4 @@ databases:
   - name: order-fulfillment-db
     region: oregon
     plan: free
-<<<<<<< HEAD
     databaseName: order_fulfillment
-=======
-    databaseName: order_fulfillment
->>>>>>> 2b23e8f (Fix errors types)
