@@ -22,7 +22,7 @@ export default function Register() {
             navigate('/dashboard');
 
         } catch(err: any) {
-            setError(error.response?.data?.error || 'Registration failed');
+            setError(err instanceof Error ? err.message : 'Registration failed');
         } finally {
             setLoading(false);
         }

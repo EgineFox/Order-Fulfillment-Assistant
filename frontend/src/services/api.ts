@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { AuthResponse, User, Store, FileUpload, ProcessFileResponse } from '../types';
+import type { AuthResponse, User, Store, FileUpload, ProcessFileResponse, DeliveryRoute } from '../types';
 
 // Base URL for API
 const API_URL = 'http://localhost:3000/api';
@@ -24,7 +24,7 @@ api.interceptors.request.use((config) => {
 // Auth API
 export const authAPI = {
     register: async (email: string, password: string, name?: string): Promise<AuthResponse> => {
-        const response = await api.post<AuthResponse>('/auth/register', { email, password, name});
+        const response = await api.post<AuthResponse>('/auth/register', { email, password, name });
         return response.data;
     },
 
@@ -33,22 +33,22 @@ export const authAPI = {
         return response.data;
     },
 
-    getMe: async (): Promise<{ user: User} > => {
-        const response = await api.get<{ user: User}>('/auth/me');
+    getMe: async (): Promise<{ user: User }> => {
+        const response = await api.get<{ user: User }>('/auth/me');
         return response.data;
     },
 };
 
 // Files API
 export const filesAPI = {
-    upload: async (file: File): Promise< { fileId: number; filename: string }> => {
+    upload: async (file: File): Promise<{ fileId: number; filename: string }> => {
         const formData = new FormData();
         formData.append('file', file);
 
         const response = await api.post('/files/upload', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
-                },
+            },
         });
         return response.data;
     },
@@ -60,7 +60,7 @@ export const filesAPI = {
     },
 
     getFiles: async (): Promise<{ files: FileUpload[] }> => {
-        const response = await api.get<{ files: FileUpload[] }> ('/files');
+        const response = await api.get<{ files: FileUpload[] }>('/files');
         return response.data;
     },
 };
@@ -68,17 +68,17 @@ export const filesAPI = {
 // Stores API
 export const storesAPI = {
     getAll: async (): Promise<{ stores: Store[] }> => {
-        const response = await api.get<{ stores: Store[] }> ('/stores');
+        const response = await api.get<{ stores: Store[] }>('/stores');
         return response.data;
     },
 };
 
 // Routes API
 export const routesAPI = {
-  getAll: async (): Promise<{ routes: DeliveryRoute[] }> => {
-    const response = await api.get<{ routes: DeliveryRoute[] }>('/routes');
-    return response.data;
-  },
-};  
+    getAll: async (): Promise<{ routes: DeliveryRoute[] }> => {
+        const response = await api.get<{ routes: DeliveryRoute[] }>('/routes');
+        return response.data;
+    },
+};
 
 export default api;

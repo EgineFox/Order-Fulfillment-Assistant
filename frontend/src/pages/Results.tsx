@@ -10,7 +10,7 @@ export default function Results() {
     const location = useLocation();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<'main' | 'stores' | 'insufficient' | 'report'>('main');
-    const [stores, setStores] = useState<Store[]>([]);
+    const [_stores, setStores] = useState<Store[]>([]);
 
     // Load stores
     useEffect(() => {
@@ -45,7 +45,7 @@ export default function Results() {
         const mainWarehousePrintStyles = `
       #main-warehouse-table,
       #main-warehouse-table * {
-        visibility: visible !important;
+        visibility: visible !important; 
       }
       #main-warehouse-table {
         position: absolute;
@@ -133,11 +133,18 @@ export default function Results() {
 
     // Group mainwarehouse items by SKU + location
     const groupedMainWarehouse = results ? results.results.mainWarehouse.reduce((acc, item) => {
-        const key = `${item.sku} - ${item.locationCode || 'no-location'}-${item.warehouse}`;
+        const key = `${item.sku}-${item.locationCode || 'no-location'}-${item.warehouse}`;
 
         if (!acc[key]) {
             acc[key] = {
-                ...item,
+                orderId: item.orderId,
+                sku: item.sku,
+                productName: item.productName,
+                quantity: item.quantity,
+                status: 'main_warehouse' as const,  // ← ДОБАВЬ 'as const'!
+                warehouse: item.warehouse!,
+                locationCode: item.locationCode,
+                availableStores: item.availableStores,
                 orderIds: [item.orderId],
             };
         } else {
@@ -170,7 +177,7 @@ export default function Results() {
                 productName: item.productName,
                 orderIds: [item.orderId],
                 totalQuantity: item.quantity,
-                totalMissing: item.missingQuantity,
+                totalMissing: item.missingQuantity || 0,
             };
         } else {
             // Add order ID only if it's not already in the list
@@ -178,7 +185,7 @@ export default function Results() {
                 acc[key].orderIds.push(item.orderId);
             }
             acc[key].totalQuantity += item.quantity;
-            acc[key].totalMissing += item.missingQuantity;
+            acc[key].totalMissing += item.missingQuantity || 0;
         }
 
         return acc;
@@ -395,44 +402,44 @@ export default function Results() {
                                         : 'None';
 
                                     return (
-                                    <tr key={idx}>
-                                        <td style={{ padding: '12px', border: '1px solid #dee2e6', fontFamily: 'monospace' }}>{item.sku}</td>
-                                        <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>{item.productName}</td>
-                                        <td style={{
-                                            padding: '12px',
-                                            border: '1px solid #dee2e6',
-                                            textAlign: 'center',
-                                            fontWeight: 'bold',
-                                            fontSize: '20px',
-                                            backgroundColor: item.locationCode ? '#fff3cd' : 'transparent',
-                                        }}>
-                                            {item.locationCode || '-'}
-                                        </td>
-                                        <td style={{
-                                            padding: '12px',
-                                            border: '1px solid #dee2e6',
-                                            textAlign: 'center',
-                                            fontWeight: 'bold',
-                                            fontSize: '20px',
-                                        }}>
-                                            {item.quantity}
-                                        </td>
-                                        <td style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'center' }}>
-                                            {item.warehouse === 1 && '1'}
-                                            {item.warehouse === 69 && '69'}
-                                            {item.warehouse === 70 && '70'}
-                                            {item.warehouse === 79 && '79'}
-                                            {!item.warehouse && '-'}
-                                        </td>
-                                        <td style={{
-                                            padding: '12px',
-                                            border: '1px solid #dee2e6',
-                                            fontSize: '12px',
-                                            color: otherStores.length > 0 ? '#28a745' : '#6c757d',
-                                        }}>
-                                            {storeNames}
-                                        </td>
-                                    </tr>
+                                        <tr key={idx}>
+                                            <td style={{ padding: '12px', border: '1px solid #dee2e6', fontFamily: 'monospace' }}>{item.sku}</td>
+                                            <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>{item.productName}</td>
+                                            <td style={{
+                                                padding: '12px',
+                                                border: '1px solid #dee2e6',
+                                                textAlign: 'center',
+                                                fontWeight: 'bold',
+                                                fontSize: '20px',
+                                                backgroundColor: item.locationCode ? '#fff3cd' : 'transparent',
+                                            }}>
+                                                {item.locationCode || '-'}
+                                            </td>
+                                            <td style={{
+                                                padding: '12px',
+                                                border: '1px solid #dee2e6',
+                                                textAlign: 'center',
+                                                fontWeight: 'bold',
+                                                fontSize: '20px',
+                                            }}>
+                                                {item.quantity}
+                                            </td>
+                                            <td style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'center' }}>
+                                                {item.warehouse === 1 && '1'}
+                                                {item.warehouse === 69 && '69'}
+                                                {item.warehouse === 70 && '70'}
+                                                {item.warehouse === 79 && '79'}
+                                                {!item.warehouse && '-'}
+                                            </td>
+                                            <td style={{
+                                                padding: '12px',
+                                                border: '1px solid #dee2e6',
+                                                fontSize: '12px',
+                                                color: otherStores.length > 0 ? '#28a745' : '#6c757d',
+                                            }}>
+                                                {storeNames}
+                                            </td>
+                                        </tr>
                                     );
                                 })}
                             </tbody>
@@ -627,141 +634,141 @@ export default function Results() {
                         </tbody>
                     </table>
 
- {/* Store Breakdown */}
-{results.results.storeRequests.length > 0 && (
-  <>
-    <h3 style={{ fontSize: '14px', marginTop: '15px', marginBottom: '8px', borderBottom: '1px solid #000', paddingBottom: '5px' }}>
-      Store Requests Breakdown
-    </h3>
-    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '15px', fontSize: '10px' }}>
-      <thead>
-        <tr style={{ backgroundColor: '#f0f0f0' }}>
-          <th style={{ padding: '6px', border: '1px solid #000', textAlign: 'left', width: '20%' }}>Store</th>
-          <th style={{ padding: '6px', border: '1px solid #000', textAlign: 'center', width: '10%' }}>Items</th>
-          <th style={{ padding: '6px', border: '1px solid #000', textAlign: 'left', width: '40%' }}>Products</th>
-          <th style={{ padding: '6px', border: '1px solid #000', textAlign: 'left', width: '30%' }}>Alt. Sources</th>
-        </tr>
-      </thead>
-      <tbody>
-        {results.results.storeRequests.map((store, idx) => {
-          // Count how many items have alternatives
-          const itemsWithAlts = store.items.filter(item => {
-            if (!item.availableStores) return false;
-            const otherStores = item.availableStores.filter(s => 
-              ![1, 69, 70, 79, store.storeId].includes(s)
-            );
-            return otherStores.length > 0;
-          }).length;
-          
-          const itemsWithoutAlts = store.items.length - itemsWithAlts;
-          
-          return (
-            <tr key={idx} style={{ backgroundColor: idx % 2 === 0 ? 'white' : '#f9f9f9' }}>
-              <td style={{ padding: '6px', border: '1px solid #000', fontWeight: 'bold' }}>
-                {store.storeName}
-              </td>
-              <td style={{ padding: '6px', border: '1px solid #000', textAlign: 'center', fontWeight: 'bold' }}>
-                {store.items.length}
-              </td>
-              <td style={{ padding: '6px', border: '1px solid #000', fontSize: '9px' }}>
-                {store.items.slice(0, 3).map(item => item.sku).join(', ')}
-                {store.items.length > 3 && ` +${store.items.length - 3} more`}
-              </td>
-              <td style={{ padding: '6px', border: '1px solid #000', fontSize: '9px' }}>
-                {itemsWithAlts > 0 && (
-                  <span style={{ color: '#28a745', fontWeight: 'bold' }}>
-                    ✓ {itemsWithAlts} item{itemsWithAlts > 1 ? 's' : ''} available elsewhere
-                  </span>
-                )}
-                {itemsWithoutAlts > 0 && (
-                  <span style={{ color: '#dc3545' }}>
-                    {itemsWithAlts > 0 && ' | '}
-                    ✗ {itemsWithoutAlts} unique
-                  </span>
-                )}
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
-    
-    {/* Detailed breakdown - only for stores with many items */}
-    {results.results.storeRequests.filter(s => s.items.length > 5).map((store) => (
-      <div key={store.storeId} style={{ marginBottom: '10px', fontSize: '9px', pageBreakInside: 'avoid' }}>
-        <strong>{store.storeName} - Detailed List:</strong>
-        <div style={{ paddingLeft: '10px', marginTop: '3px' }}>
-          {store.items.map((item, idx) => {
-            const otherStores = item.availableStores 
-              ? item.availableStores.filter(s => ![1, 69, 70, 79, store.storeId].includes(s))
-              : [];
-            
-            const altStoreNames = otherStores.length > 0
-              ? otherStores.slice(0, 3).join(', ') + (otherStores.length > 3 ? ` +${otherStores.length - 3}` : '')
-              : 'None';
-            
-            return (
-              <div key={idx} style={{ padding: '2px 0' }}>
-                • {item.sku} - {item.productName.substring(0, 40)}
-                {item.productName.length > 40 && '...'}
-                {otherStores.length > 0 && (
-                  <span style={{ color: '#666', fontStyle: 'italic' }}> (Alt: {altStoreNames})</span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    ))}
-  </>
-)}
+                    {/* Store Breakdown */}
+                    {results.results.storeRequests.length > 0 && (
+                        <>
+                            <h3 style={{ fontSize: '14px', marginTop: '15px', marginBottom: '8px', borderBottom: '1px solid #000', paddingBottom: '5px' }}>
+                                Store Requests Breakdown
+                            </h3>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '15px', fontSize: '10px' }}>
+                                <thead>
+                                    <tr style={{ backgroundColor: '#f0f0f0' }}>
+                                        <th style={{ padding: '6px', border: '1px solid #000', textAlign: 'left', width: '20%' }}>Store</th>
+                                        <th style={{ padding: '6px', border: '1px solid #000', textAlign: 'center', width: '10%' }}>Items</th>
+                                        <th style={{ padding: '6px', border: '1px solid #000', textAlign: 'left', width: '40%' }}>Products</th>
+                                        <th style={{ padding: '6px', border: '1px solid #000', textAlign: 'left', width: '30%' }}>Alt. Sources</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {results.results.storeRequests.map((store, idx) => {
+                                        // Count how many items have alternatives
+                                        const itemsWithAlts = store.items.filter(item => {
+                                            if (!item.availableStores) return false;
+                                            const otherStores = item.availableStores.filter(s =>
+                                                ![1, 69, 70, 79, store.storeId].includes(s)
+                                            );
+                                            return otherStores.length > 0;
+                                        }).length;
+
+                                        const itemsWithoutAlts = store.items.length - itemsWithAlts;
+
+                                        return (
+                                            <tr key={idx} style={{ backgroundColor: idx % 2 === 0 ? 'white' : '#f9f9f9' }}>
+                                                <td style={{ padding: '6px', border: '1px solid #000', fontWeight: 'bold' }}>
+                                                    {store.storeName}
+                                                </td>
+                                                <td style={{ padding: '6px', border: '1px solid #000', textAlign: 'center', fontWeight: 'bold' }}>
+                                                    {store.items.length}
+                                                </td>
+                                                <td style={{ padding: '6px', border: '1px solid #000', fontSize: '9px' }}>
+                                                    {store.items.slice(0, 3).map(item => item.sku).join(', ')}
+                                                    {store.items.length > 3 && ` +${store.items.length - 3} more`}
+                                                </td>
+                                                <td style={{ padding: '6px', border: '1px solid #000', fontSize: '9px' }}>
+                                                    {itemsWithAlts > 0 && (
+                                                        <span style={{ color: '#28a745', fontWeight: 'bold' }}>
+                                                            ✓ {itemsWithAlts} item{itemsWithAlts > 1 ? 's' : ''} available elsewhere
+                                                        </span>
+                                                    )}
+                                                    {itemsWithoutAlts > 0 && (
+                                                        <span style={{ color: '#dc3545' }}>
+                                                            {itemsWithAlts > 0 && ' | '}
+                                                            ✗ {itemsWithoutAlts} unique
+                                                        </span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+
+                            {/* Detailed breakdown - only for stores with many items */}
+                            {results.results.storeRequests.filter(s => s.items.length > 5).map((store) => (
+                                <div key={store.storeId} style={{ marginBottom: '10px', fontSize: '9px', pageBreakInside: 'avoid' }}>
+                                    <strong>{store.storeName} - Detailed List:</strong>
+                                    <div style={{ paddingLeft: '10px', marginTop: '3px' }}>
+                                        {store.items.map((item, idx) => {
+                                            const otherStores = item.availableStores
+                                                ? item.availableStores.filter(s => ![1, 69, 70, 79, store.storeId].includes(s))
+                                                : [];
+
+                                            const altStoreNames = otherStores.length > 0
+                                                ? otherStores.slice(0, 3).join(', ') + (otherStores.length > 3 ? ` +${otherStores.length - 3}` : '')
+                                                : 'None';
+
+                                            return (
+                                                <div key={idx} style={{ padding: '2px 0' }}>
+                                                    • {item.sku} - {item.productName.substring(0, 40)}
+                                                    {item.productName.length > 40 && '...'}
+                                                    {otherStores.length > 0 && (
+                                                        <span style={{ color: '#666', fontStyle: 'italic' }}> (Alt: {altStoreNames})</span>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            ))}
+                        </>
+                    )}
                     {/* Insufficient Items */}
-{groupedInsufficientArray.length > 0 && (
-  <>
-    <h3 style={{ fontSize: '14px', marginTop: '15px', marginBottom: '8px', borderBottom: '1px solid #000', paddingBottom: '5px' }}>
-      ⚠️ ACTION REQUIRED: Insufficient Inventory
-    </h3>
-    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px' }}>
-      <thead>
-        <tr style={{ backgroundColor: '#ffe6e6' }}>
-          <th style={{ padding: '6px', border: '1px solid #000', textAlign: 'left' }}>SKU</th>
-          <th style={{ padding: '6px', border: '1px solid #000', textAlign: 'left' }}>Product</th>
-          <th style={{ padding: '6px', border: '1px solid #000', textAlign: 'left' }}>Orders</th>
-          <th style={{ padding: '6px', border: '1px solid #000', textAlign: 'center' }}>Missing</th>
-          <th style={{ padding: '6px', border: '1px solid #000', textAlign: 'left' }}>Available In</th>
-        </tr>
-      </thead>
-      <tbody>
-        {groupedInsufficientArray.map((item, idx) => {
-            
-          // Get available stores from first insufficient item with this SKU
-          const insufficientItem = results.results.insufficient.find(i => i.sku === item.sku);
-          const availableStores = insufficientItem?.availableStores || [];
-          
-          // Filter out main warehouses
-          const otherStores = availableStores.filter(s => ![1, 69, 70, 79].includes(s));
-          
-          return (
-            <tr key={idx} style={{ backgroundColor: idx % 2 === 0 ? 'white' : '#fff9f9' }}>
-              <td style={{ padding: '6px', border: '1px solid #000', fontFamily: 'monospace' }}>{item.sku}</td>
-              <td style={{ padding: '6px', border: '1px solid #000' }}>{item.productName}</td>
-              <td style={{ padding: '6px', border: '1px solid #000' }}>{item.orderIds.join(', ')}</td>
-              <td style={{ padding: '6px', border: '1px solid #000', textAlign: 'center', fontWeight: 'bold' }}>
-                {item.totalMissing}
-              </td>
-              <td style={{ padding: '6px', border: '1px solid #000', fontSize: '9px' }}>
-                {otherStores.length === 0
-                  ? <span style={{ color: '#dc3545', fontWeight: 'bold' }}>❌ Out of stock</span>
-                  : <span>{otherStores.slice(0, 5).join(', ')}{otherStores.length > 5 && ` +${otherStores.length - 5}`}</span>
-                }
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
-  </>
-)}
+                    {groupedInsufficientArray.length > 0 && (
+                        <>
+                            <h3 style={{ fontSize: '14px', marginTop: '15px', marginBottom: '8px', borderBottom: '1px solid #000', paddingBottom: '5px' }}>
+                                ⚠️ ACTION REQUIRED: Insufficient Inventory
+                            </h3>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px' }}>
+                                <thead>
+                                    <tr style={{ backgroundColor: '#ffe6e6' }}>
+                                        <th style={{ padding: '6px', border: '1px solid #000', textAlign: 'left' }}>SKU</th>
+                                        <th style={{ padding: '6px', border: '1px solid #000', textAlign: 'left' }}>Product</th>
+                                        <th style={{ padding: '6px', border: '1px solid #000', textAlign: 'left' }}>Orders</th>
+                                        <th style={{ padding: '6px', border: '1px solid #000', textAlign: 'center' }}>Missing</th>
+                                        <th style={{ padding: '6px', border: '1px solid #000', textAlign: 'left' }}>Available In</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {groupedInsufficientArray.map((item, idx) => {
+
+                                        // Get available stores from first insufficient item with this SKU
+                                        const insufficientItem = results.results.insufficient.find(i => i.sku === item.sku);
+                                        const availableStores = insufficientItem?.availableStores || [];
+
+                                        // Filter out main warehouses
+                                        const otherStores = availableStores.filter(s => ![1, 69, 70, 79].includes(s));
+
+                                        return (
+                                            <tr key={idx} style={{ backgroundColor: idx % 2 === 0 ? 'white' : '#fff9f9' }}>
+                                                <td style={{ padding: '6px', border: '1px solid #000', fontFamily: 'monospace' }}>{item.sku}</td>
+                                                <td style={{ padding: '6px', border: '1px solid #000' }}>{item.productName}</td>
+                                                <td style={{ padding: '6px', border: '1px solid #000' }}>{item.orderIds.join(', ')}</td>
+                                                <td style={{ padding: '6px', border: '1px solid #000', textAlign: 'center', fontWeight: 'bold' }}>
+                                                    {item.totalMissing}
+                                                </td>
+                                                <td style={{ padding: '6px', border: '1px solid #000', fontSize: '9px' }}>
+                                                    {otherStores.length === 0
+                                                        ? <span style={{ color: '#dc3545', fontWeight: 'bold' }}>❌ Out of stock</span>
+                                                        : <span>{otherStores.slice(0, 5).join(', ')}{otherStores.length > 5 && ` +${otherStores.length - 5}`}</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </>
+                    )}
                 </div>
             </div>
 
@@ -862,7 +869,7 @@ export default function Results() {
                             }}>
                                 <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#666' }}>Insufficient</h3>
                                 <p style={{ margin: 0, fontSize: '32px', fontWeight: 'bold', color: '#dc3545' }}>
-                                    {results.results.insufficient.reduce((sum, item) => sum + item.missingQuantity, 0)}
+                                    {results.results.insufficient.reduce((sum, item) => sum + (item.missingQuantity || 0), 0)}
                                 </p>
                                 <p style={{ margin: '5px 0 0 0', fontSize: '14px', color: '#666' }}>
                                     ({results.results.insufficient.length} items)
