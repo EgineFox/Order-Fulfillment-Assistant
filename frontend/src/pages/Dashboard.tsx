@@ -126,18 +126,13 @@ export default function Dashboard() {
   // Get today's day of week
   const today = new Date().getDay();
 
-  // Get store name by ID
-  const getStoreName = (storeId: number): string => {
-    const store = stores.find( s=> s.id === storeId);
-    return store ? store.name: `Store ${storeId}`;
-  };
 
   // Format route stores whith names
   const formatRouteStores = (storesString: string): string => {
     const storeIds = storesString.split(',').map(s => parseInt(s.trim(), 10));
     return storeIds
       .map(id => {
-        const store = stores.find( s => s.id === id);
+        const store = stores.find(s => s.id === id);
         return store ? `${store.name} (${id})` : `Store ${id}`;
       })
       .join(', ');
@@ -384,7 +379,7 @@ export default function Dashboard() {
               }}>
                 <strong>🚚 Today ({getDayName(today)}):</strong>
                 <br />
-               {formatRouteStores(todayRoute.stores)}
+                {formatRouteStores(todayRoute.stores)}
               </div>
             )}
 
@@ -437,21 +432,21 @@ export default function Dashboard() {
             </p>
           </>
         )}
-              {/* Instructions */}
-              <div style={{
-                marginTop: '30px',
-                padding: '20px',
-                backgroundColor: '#f8f9fa',
-                borderRadius: '8px',
-              }}>
-                <h3>How to use:</h3>
-                <ol style={{ paddingLeft: '20px' }}>
-                  <li>Select an Excel file with order data</li>
-                  <li>Click "Upload File" to upload to server</li>
-                  <li>Click "Process File" to run distribution algorithm</li>
-                  <li>View results with store allocations</li>
-                </ol>
-              </div>
+        {/* Instructions */}
+        <div style={{
+          marginTop: '30px',
+          padding: '20px',
+          backgroundColor: '#f8f9fa',
+          borderRadius: '8px',
+        }}>
+          <h3>How to use:</h3>
+          <ol style={{ paddingLeft: '20px' }}>
+            <li>Select an Excel file with order data</li>
+            <li>Click "Upload File" to upload to server</li>
+            <li>Click "Process File" to run distribution algorithm</li>
+            <li>View results with store allocations</li>
+          </ol>
+        </div>
       </div>
     </div>
   )
