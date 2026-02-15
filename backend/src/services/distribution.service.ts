@@ -66,15 +66,20 @@ const generateMessage = (request: DistributionResults['storeRequests'][0]): stri
   let msg = 'שלום!\n';
   msg += 'צריכים סחורה:\n\n';
 
-  for (const item of request.items) {
-    msg += `• ${item.productName}\n`;
-    msg += `  מק"ט: ${item.sku}\n`;
-    msg += `  כמות: ${item.quantity}\n\n`;
+  // Single item - no numbering
+  if (request.items.length === 1) {
+    const item = request.items[0];
+    return `שלום!\nצריכים סחורה:\n\n${item.productName}\n ${item.sku}\n\nתודה רבה!`;
   }
 
-  msg += 'תודה רבה!';
+  // Multiple items - with numbering
+  const itemsText = request.items
+    .map((item, index) => {
+      return `${index + 1}. ${item.productName}\n  ${item.sku}`;
+    })
+    .join('\n\n');
 
-  return msg;
+  return `שלום!\nצריכים סחורה:\n\n${itemsText}\n\nתודה רבה!`;
 };
 
 // ============================================
