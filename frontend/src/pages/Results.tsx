@@ -169,7 +169,18 @@ export default function Results() {
         orderIds: string[];
     }>) : {};
 
-    const groupedMainWarehouseArray = Object.values(groupedMainWarehouse);
+    const groupedMainWarehouseArray = Object.values(groupedMainWarehouse).sort((a, b) => {
+  // Sort by WH number
+  const warehouseA = a.warehouse || 999;
+  const warehouseB = b.warehouse || 999;
+  
+  if (warehouseA !== warehouseB) {
+    return warehouseA - warehouseB;
+  }
+  
+  // If WH the same - by SKU
+  return a.sku.localeCompare(b.sku);
+});
 
     // Group insufficient items by SKU
     const groupedInsufficient = results ? results.results.insufficient.reduce((acc, item) => {
