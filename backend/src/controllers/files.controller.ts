@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import * as path from 'path';
 import * as fs from 'fs';
 import prisma from '../config/database';
-import { parseExcelFile, ParseResult, ParseError } from '../services/fileProcessor.service';
+import { parseExcelFile, ParseResult } from '../services/fileProcessor.service';
 import { OrderRow } from '../types';
 import { distributeOrders } from '../services/distribution.service';
 
