@@ -8,22 +8,16 @@ import { distributeOrders } from '../services/distribution.service';
 
 // Upload file
 export const uploadFile = async (req: Request, res: Response): Promise<void> => {
-  console.log('=== uploadFile controller START ===');
-  console.log('req.file:', req.file);
-  console.log('req.user:', req.user);
 
   try {
-    console.log('Upload file called');
     
     if (!req.file) {
-      console.log('No file uploaded');
       res.status(400).json({ error: 'No file uploaded' });
       return;
     }
     
     const userId = req.user?.userId;
     if (!userId) {
-      console.log('Unauthorized');
       res.status(401).json({ error: 'Unauthorized' });
       return;
     }
@@ -51,7 +45,6 @@ export const uploadFile = async (req: Request, res: Response): Promise<void> => 
     console.log('Response sent');
     
   } catch (error) {
-    console.error('Upload error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 };
@@ -70,8 +63,7 @@ export const processFile = async (req: Request, res: Response): Promise<void> =>
 
         console.log('Processing file:', fileId);
         if (excludedStores && excludedStores.length > 0) {
-          console.log('Excluded stores:', excludedStores);
-        }
+           }
 
         // Get info about file
         const fileUpload = await prisma.fileUpload.findUnique({
@@ -196,7 +188,7 @@ export const getFiles = async (req: Request, res: Response): Promise<void> => {
     res.json({ files });
     
   } catch (error) {
-    console.error('❌ GetFiles error:', error);
+    console.error('GetFiles error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 };

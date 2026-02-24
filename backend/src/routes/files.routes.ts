@@ -1,21 +1,15 @@
 import { Router } from 'express';
 import { uploadFile, processFile, getFiles } from '../controllers/files.controller';
 import { authMiddleware } from '../middleware/auth.middleware';
-import { upload, uploadLogger } from '../middleware/upload.middleware';
+import { upload } from '../middleware/upload.middleware';
 
 const router = Router();
 
 // All routes protected by authentication
 router.use(authMiddleware);
 
-// Upload file with logging
-router.post('/upload', 
-  (req, res, next) => {
-    console.log('=== ROUTE /upload HIT ===');
-    next();
-  },
-  upload.single('file'),
-  uploadLogger,
+// Upload file
+router.post('/upload', upload.single('file'),
   uploadFile
 );
 

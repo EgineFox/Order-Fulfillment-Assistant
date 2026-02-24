@@ -39,9 +39,7 @@ export interface DistributionResults {
   }[];
 }
 
-// ============================================
 // HELPER FUNCTIONS
-// ============================================
 
 // Parse inventory string: "1, 10, 11, 12" → [1, 10, 11, 12]
 const parseInventory = (inventory?: string | null): number[] => {
@@ -82,16 +80,14 @@ const generateMessage = (request: DistributionResults['storeRequests'][0]): stri
   return `שלום!\nצריכים סחורה:\n\n${itemsText}\n\nתודה רבה!`;
 };
 
-// ============================================
 // MAIN DISTRIBUTION FUNCTION
-// ============================================
 
 export const distributeOrders = async (
   orders: OrderRow[],
   deliveryDate?: Date,
   excludedStores: number[] = []
 ): Promise<DistributionResults> => {
-  console.log('Starting distribution algorithm...');
+  console.log('Starting distribution algorithm');
   console.log(`Total items: ${orders.length}`);
 
 
@@ -150,8 +146,7 @@ export const distributeOrders = async (
   }
 
   const groupedOrders = Array.from(ordersMap.values());
-  console.log(`Grouped into ${groupedOrders.length} orders`);
-
+  
   // STEP 2: Sort by priority
   groupedOrders.sort((a, b) => {
     // Level 1: More items = higher priority
@@ -161,8 +156,6 @@ export const distributeOrders = async (
     // Level 2: Earlier date = higher priority
     return a.orderDate.getTime() - b.orderDate.getTime();
   });
-
-  console.log('Orders sorted by priority');
 
   // STEP 3: Distribute items
   const results: DistributionResults = {
@@ -199,7 +192,6 @@ export const distributeOrders = async (
           availableStores: item.availableStores,
         });
 
-        console.log(`${item.sku} → Main warehouse ${mainStores[0]}`);
         continue;
       }
 
@@ -208,19 +200,12 @@ export const distributeOrders = async (
         !MAIN_WAREHOUSES.includes(s) && !excludedStores.includes(s)
       );
 
-      if (excludedStores.length > 0) {
-        console.log(`  → Excluding stores: [${excludedStores.join(', ')}]`);
-      }
-
       let remainingQty = item.quantity;
       const allocations: StoreAllocation[] = [];
 
       // STEP 3A: Prioritize route stores (if route exists)
       if (priorityStores.length > 0) {
         const routeStores = otherStores.filter(s => priorityStores.includes(s));
-
-        console.log(`  → Item ${item.sku}: need ${remainingQty} units, ${routeStores.length} route stores available`);
-        console.log(`    Route stores:`, routeStores);
 
         while (remainingQty > 0 && routeStores.length > 0) {
           const storeId = routeStores[globalRouteIndex % routeStores.length];
@@ -239,14 +224,11 @@ export const distributeOrders = async (
 
             // Check if we've tried all stores
             if (usedStores.size >= routeStores.length) {
-              console.log(`    → All route stores already used for SKU ${item.sku}`);
-              break;
+                break;
             }
 
             continue;
           }
-
-          console.log(`    → Global round ${globalRouteIndex + 1}: Allocating 1 unit to Store ${storeId}`);
 
           // Mark this store as used for this SKU
           usedStores.add(storeId);
@@ -279,15 +261,11 @@ export const distributeOrders = async (
           globalRouteIndex++;
         }
 
-        console.log(`  → Final: allocated ${allocations.length} units to route stores, ${remainingQty} remaining`);
       }
 
       // STEP 3B: Distribute remaining to other stores (with round-robin)
       if (remainingQty > 0) {
         const nonRouteStores = otherStores.filter(s => !priorityStores.includes(s));
-
-        console.log(`  → Item ${item.sku}: ${remainingQty} units remaining, ${nonRouteStores.length} non-route stores available`);
-        console.log(`    Non-route stores:`, nonRouteStores);
 
         while (remainingQty > 0 && nonRouteStores.length > 0) {
           const storeId = nonRouteStores[globalRouteIndex % nonRouteStores.length];
@@ -306,14 +284,11 @@ export const distributeOrders = async (
 
             // Check if we've tried all stores
             if (usedStores.size >= nonRouteStores.length) {
-              console.log(`    → All ${nonRouteStores.length} non-route stores already used for SKU ${item.sku}`);
               break;
             }
 
             continue;
           }
-
-          console.log(`    → Global round ${globalRouteIndex + 1}: Allocating 1 unit to Store ${storeId} (non-route)`);
 
           // Mark this store as used for this SKU
           usedStores.add(storeId);
@@ -347,7 +322,6 @@ export const distributeOrders = async (
         }
 
         if (allocations.length > 0) {
-          console.log(`  → Allocated to ${allocations.length} non-route stores total`);
         }
       }
 
@@ -363,7 +337,6 @@ export const distributeOrders = async (
             availableStores: item.availableStores, 
           });
           
-          console.log(`  ❌ ${item.sku} → Missing ${remainingQty} units (Order ${order.externalId})`);
         }
 
       }

@@ -52,10 +52,4 @@ export const upload = multer({
   }
 });
 
-// Log middleware
-export const uploadLogger = (req: any, res: any, next: any) => {
-  console.log('=== AFTER MULTER ===');
-  console.log('req.file:', req.file);
-  console.log('Calling next()...');
-  next();
-};
+
